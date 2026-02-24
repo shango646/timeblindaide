@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Timeblind Aide</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Fraunces:ital,wght@0,200;0,400;0,600;1,200;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0c0c0e;
+  --surface: #161618;
+  --surface2: #1e1e21;
+  --border: #272729;
+  --border2: #323235;
+  --accent: #e2c97e;
+  --accent2: #b89f5c;
+  --text: #ede9e0;
+  --muted: #5a5755;
+  --muted2: #7a7673;
+  --danger: #e07060;
+  --warn: #e09050;
+  --green: #7ab87a;
+  --buffer: #2a3a2a;
+  --buffer-border: #3d5c3d;
+  --block: #1e2535;
+  --block-border: #2d3d5a;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  min-height: 100vh;
+  padding: 0 0 80px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* HEADER */
+.header {
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.header h1 {
+  font-family: 'Fraunces', serif;
+  font-weight: 200;
+  font-size: 26px;
+  color: var(--accent);
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.header h1 em {
+  font-style: italic;
+  font-weight: 400;
+}
+
+.header-tagline {
+  font-size: 10px;
+  color: var(--muted2);
+  letter-spacing: 0.08em;
+  margin-top: 6px;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.clock-block {
+  text-align: right;
+}
+
+.clock {
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.5px;
+}
+
+.date-label {
+  font-size: 10px;
+  color: var(--muted2);
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+
+/* START MODE */
+.start-mode-bar {
+  margin: 12px 20px 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.start-mode-label {
+  font-size: 9px;
+  color: var(--muted2);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.mode-btns {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+}
+
+.mode-btn {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  color: var(--muted2);
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  padding: 6px 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.mode-btn.active {
+  background: var(--surface2);
+  border-color: var(--accent2);
+  color: var(--accent);
+}
+
+.preset-time-wrap {
+  display: none;
+  width: 100%;
+  margin-top: 8px;
+  gap: 8px;
+  align-items: center;
+}
+
+.preset-time-wrap.visible {
+  display: flex;
+}
+
+.preset-time-wrap input[type="time"] {
+  flex: 1;
+  font-size: 15px;
+  padding: 8px 12px;
+}
+
+.preset-apply-btn {
+  background: var(--accent2);
+  color: var(--bg);
+  border: none;
+  border-radius: 6px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.preset-apply-btn:hover { background: var(--accent); }
+
+.preset-active-label {
+  font-size: 10px;
+  color: var(--accent2);
+  width: 100%;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+/* BUFFER SUMMARY */
+.buffer-summary {
+  margin: 16px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  gap: 0;
+}
+
+.buf-stat {
+  flex: 1;
+  text-align: center;
+  padding: 0 8px;
+  border-right: 1px solid var(--border);
+}
+
+.buf-stat:last-child { border-right: none; }
+
+.buf-stat .val {
+  font-size: 20px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.buf-stat .val.good { color: var(--green); }
+.buf-stat .val.warn { color: var(--warn); }
+.buf-stat .val.danger { color: var(--danger); animation: pulse 1.5s ease-in-out infinite; }
+.buf-stat .lbl {
+  font-size: 9px;
+  color: var(--muted2);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* TIMELINE */
+.timeline-wrap {
+  margin: 0 20px 20px;
+}
+
+.timeline-heading {
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.timeline-bar {
+  height: 36px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.tl-segment {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding: 0 4px;
+  transition: all 0.5s ease;
+}
+
+.tl-segment.block-seg {
+  background: var(--block);
+  border-right: 1px solid var(--block-border);
+  color: #8aaddd;
+}
+
+.tl-segment.buffer-seg {
+  background: var(--buffer);
+  border-right: 1px solid var(--buffer-border);
+  color: #6a9a6a;
+}
+
+.tl-segment.past-seg {
+  background: #141414;
+  border-right: 1px solid #1e1e1e;
+  color: var(--muted);
+}
+
+.tl-now-line {
+  position: absolute;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background: var(--accent);
+  z-index: 10;
+  transition: left 1s linear;
+}
+
+.tl-now-line::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.tl-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.tl-label {
+  font-size: 9px;
+  color: var(--muted);
+}
+
+/* ADD FORM */
+.add-section {
+  margin: 0 20px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+}
+
+.form-row {
+  margin-bottom: 14px;
+}
+
+.form-row:last-child { margin-bottom: 0; }
+
+.form-label {
+  font-size: 9px;
+  color: var(--muted2);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: block;
+}
+
+input[type="text"], input[type="time"], input[type="number"], select {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 14px;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+
+input[type="time"] {
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--accent);
+}
+
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235a5755' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+  cursor: pointer;
+}
+
+select option { background: #1a1a1c; }
+
+input:focus, select:focus { border-color: var(--accent2); }
+input::placeholder { color: var(--muted); }
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.three-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+button.add-btn {
+  width: 100%;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  border-radius: 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 12px;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: background 0.2s, transform 0.1s;
+  margin-top: 4px;
+}
+
+button.add-btn:hover { background: var(--accent2); }
+button.add-btn:active { transform: scale(0.98); }
+
+/* DURATION TOGGLE */
+.duration-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.toggle-btn {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  color: var(--muted2);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  padding: 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.toggle-btn.active {
+  background: var(--surface2);
+  border-color: var(--accent2);
+  color: var(--accent);
+}
+
+.duration-field { display: none; }
+.duration-field.visible { display: block; }
+
+/* BLOCKS LIST */
+.blocks-heading {
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0 20px 10px;
+}
+
+.blocks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0 20px;
+}
+
+/* BLOCK CARD */
+.block-card {
+  position: relative;
+  border-radius: 0;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.block-card:first-child { border-radius: 12px 12px 0 0; }
+.block-card:last-child { border-radius: 0 0 12px 12px; }
+.block-card:only-child { border-radius: 12px; }
+
+.block-inner {
+  background: var(--block);
+  border: 1px solid var(--block-border);
+  border-bottom: none;
+  padding: 14px 16px;
+}
+
+.block-card:last-child .block-inner { border-bottom: 1px solid var(--block-border); }
+.block-card:only-child .block-inner { border-bottom: 1px solid var(--block-border); }
+
+.block-card.past .block-inner {
+  background: #111113;
+  border-color: #1e1e22;
+  opacity: 0.5;
+}
+
+.block-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.block-name {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 16px;
+  color: var(--text);
+  line-height: 1.2;
+  flex: 1;
+}
+
+.block-meta {
+  font-size: 10px;
+  color: var(--muted2);
+  margin-top: 2px;
+}
+
+.block-right {
+  text-align: right;
+  flex-shrink: 0;
+  padding-left: 12px;
+}
+
+.block-countdown {
+  font-size: 22px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.block-card.urgent .block-countdown {
+  color: var(--danger);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.block-card.warning .block-countdown { color: var(--warn); }
+.block-card.past .block-countdown { color: var(--green); font-size: 14px; }
+
+.block-status {
+  font-size: 9px;
+  color: var(--muted2);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.progress-track {
+  height: 3px;
+  background: var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 1s linear, background 0.5s;
+}
+
+.block-card.urgent .progress-fill { background: var(--danger); }
+.block-card.warning .progress-fill { background: var(--warn); }
+.block-card.past .progress-fill { background: var(--green); width: 100% !important; }
+
+.del-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 2px 0 2px 8px;
+  transition: color 0.2s;
+}
+
+.del-btn:hover { color: var(--danger); }
+
+/* BUFFER CONNECTOR */
+.buffer-connector {
+  background: var(--buffer);
+  border-left: 1px solid var(--buffer-border);
+  border-right: 1px solid var(--buffer-border);
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.buffer-connector.danger-buf {
+  background: #2a1a1a;
+  border-color: #5a2a2a;
+}
+
+.buffer-connector.warn-buf {
+  background: #2a2218;
+  border-color: #5a4a28;
+}
+
+.buf-label {
+  font-size: 9px;
+  color: #6a9a6a;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.buf-time {
+  font-size: 13px;
+  font-weight: 500;
+  color: #7ab87a;
+  font-variant-numeric: tabular-nums;
+}
+
+.buffer-connector.danger-buf .buf-label,
+.buffer-connector.danger-buf .buf-time { color: var(--danger); }
+
+.buffer-connector.warn-buf .buf-label,
+.buffer-connector.warn-buf .buf-time { color: var(--warn); }
+
+.buf-alert {
+  font-size: 10px;
+}
+
+/* EMPTY */
+.empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 2;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  margin: 0 20px;
+}
+
+.empty .icon { font-size: 28px; margin-bottom: 12px; opacity: 0.4; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+/* SECTION DIVIDER */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 20px 20px;
+}
+
+.alert-banner {
+  margin: 0 20px 16px;
+  background: #2a1a1a;
+  border: 1px solid #7a3030;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 11px;
+  color: var(--danger);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: pulse 2s ease-in-out infinite;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Timeblind<br><em>Aide</em></h1>
+    <p class="header-tagline">Plan backwards.<br>Live forwards.</p>
+  </div>
+  <div class="clock-block">
+    <div class="clock" id="clock">—</div>
+    <div class="date-label" id="dateLabel">—</div>
+  </div>
+</div>
+
+<!-- START MODE -->
+<div class="start-mode-bar">
+  <span class="start-mode-label">Start from</span>
+  <div class="mode-btns">
+    <div class="mode-btn active" id="modeNow" onclick="setStartMode('now')">⏱ Current time</div>
+    <div class="mode-btn" id="modePreset" onclick="setStartMode('preset')">🕐 Preset time</div>
+  </div>
+  <div class="preset-time-wrap" id="presetWrap">
+    <input type="time" id="presetTimeInput" />
+    <button class="preset-apply-btn" onclick="applyPreset()">Set</button>
+  </div>
+  <div class="preset-active-label" id="presetActiveLabel" style="display:none"></div>
+</div>
+
+<!-- BUFFER SUMMARY -->
+<div class="buffer-summary" id="bufferSummary">
+  <div class="buf-stat">
+    <div class="val good" id="statBlocked">—</div>
+    <div class="lbl">Blocked</div>
+  </div>
+  <div class="buf-stat">
+    <div class="val good" id="statBuffer">—</div>
+    <div class="lbl">Buffer</div>
+  </div>
+  <div class="buf-stat">
+    <div class="val good" id="statNext">—</div>
+    <div class="lbl">Next event</div>
+  </div>
+</div>
+
+<!-- ALERT BANNER -->
+<div class="alert-banner" id="alertBanner" style="display:none">
+  ⚠️ <span id="alertText"></span>
+</div>
+
+<!-- TIMELINE -->
+<div class="timeline-wrap">
+  <div class="timeline-heading">Today's timeline</div>
+  <div class="timeline-bar" id="timelineBar">
+    <div class="tl-now-line" id="nowLine" style="left:0%"></div>
+  </div>
+  <div class="tl-labels">
+    <span class="tl-label" id="tlStart">—</span>
+    <span class="tl-label" id="tlMid">—</span>
+    <span class="tl-label" id="tlEnd">—</span>
+  </div>
+</div>
+
+<!-- ADD FORM -->
+<div class="add-section">
+  <div class="form-row">
+    <label class="form-label">Event name</label>
+    <input type="text" id="eventName" placeholder="e.g. Doctor's appointment" />
+  </div>
+  <div class="form-row">
+    <label class="form-label">Start time</label>
+    <input type="time" id="startTime" />
+  </div>
+
+  <div class="duration-toggle">
+    <div class="toggle-btn active" id="toggleNoDur" onclick="setDurMode(false)">Deadline only</div>
+    <div class="toggle-btn" id="toggleDur" onclick="setDurMode(true)">+ Duration</div>
+  </div>
+
+  <div class="duration-field" id="durationField">
+    <label class="form-label">Duration (minutes)</label>
+    <input type="number" id="duration" placeholder="e.g. 45" min="1" max="480" />
+  </div>
+
+  <button class="add-btn" onclick="addBlock()">＋ Add to timeline</button>
+</div>
+
+<div class="blocks-heading" id="blocksHeading">Your blocks</div>
+<div id="blocksContainer"></div>
+
+<script>
+let blocks = [];
+let hasDuration = false;
+let startMode = 'now'; // 'now' or 'preset'
+let presetTime = null; // timestamp offset: preset start ms
+
+function setStartMode(mode) {
+  startMode = mode;
+  document.getElementById('modeNow').classList.toggle('active', mode === 'now');
+  document.getElementById('modePreset').classList.toggle('active', mode === 'preset');
+  document.getElementById('presetWrap').classList.toggle('visible', mode === 'preset');
+  if (mode === 'now') {
+    presetTime = null;
+    document.getElementById('presetActiveLabel').style.display = 'none';
+  }
+  // Pre-fill preset input with current time
+  if (mode === 'preset') {
+    const now = new Date();
+    document.getElementById('presetTimeInput').value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  }
+  render();
+}
+
+function applyPreset() {
+  const val = document.getElementById('presetTimeInput').value;
+  if (!val) return;
+  const [h, m] = val.split(':').map(Number);
+  const d = new Date();
+  d.setHours(h, m, 0, 0);
+  presetTime = d.getTime();
+  const label = document.getElementById('presetActiveLabel');
+  label.textContent = `Planning from ${formatTime(d)}`;
+  label.style.display = 'block';
+  render();
+}
+
+function getEffectiveNow() {
+  if (startMode === 'preset' && presetTime !== null) return presetTime;
+  return Date.now();
+}
+
+function setDurMode(on) {
+  hasDuration = on;
+  document.getElementById('toggleNoDur').classList.toggle('active', !on);
+  document.getElementById('toggleDur').classList.toggle('active', on);
+  document.getElementById('durationField').classList.toggle('visible', on);
+}
+
+function pad(n) { return String(n).padStart(2, '0'); }
+
+function formatTime(date) {
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function formatMins(mins) {
+  if (mins <= 0) return '0m';
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  if (h > 0 && m > 0) return `${h}h ${m}m`;
+  if (h > 0) return `${h}h`;
+  return `${m}m`;
+}
+
+function formatCountdown(ms) {
+  if (ms <= 0) return null;
+  const totalSec = Math.floor(ms / 1000);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  if (h > 0) return `${h}:${pad(m)}:${pad(s)}`;
+  return `${m}:${pad(s)}`;
+}
+
+function addBlock() {
+  const name = document.getElementById('eventName').value.trim() || 'Event';
+  const timeVal = document.getElementById('startTime').value;
+  if (!timeVal) { document.getElementById('startTime').focus(); return; }
+
+  const [h, m] = timeVal.split(':').map(Number);
+  const start = new Date();
+  start.setHours(h, m, 0, 0);
+
+  const durVal = parseInt(document.getElementById('duration').value) || 0;
+  const duration = hasDuration ? durVal : 0;
+
+  const id = Date.now();
+  blocks.push({ id, name, start: start.getTime(), duration, addedAt: Date.now() });
+  blocks.sort((a, b) => a.start - b.start);
+
+  document.getElementById('eventName').value = '';
+  document.getElementById('duration').value = '';
+
+  render();
+}
+
+function removeBlock(id) {
+  blocks = blocks.filter(b => b.id !== id);
+  render();
+}
+
+function render() {
+  const now = getEffectiveNow();
+  const realNow = Date.now();
+  const nowDate = new Date(realNow);
+  const isPreset = startMode === 'preset' && presetTime !== null;
+
+  // Clock always shows real time
+  document.getElementById('clock').textContent = formatTime(nowDate);
+  document.getElementById('dateLabel').textContent = nowDate.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
+
+  // Future blocks relative to effective now
+  const upcoming = blocks.filter(b => {
+    const end = b.start + b.duration * 60000;
+    return b.duration > 0 ? end > now : b.start > now;
+  });
+
+  let blockedMins = 0;
+  upcoming.forEach(b => { blockedMins += Math.max(b.duration, 0); });
+
+  let bufferMins = 0;
+  const sorted = [...blocks].sort((a, b) => a.start - b.start);
+
+  // Day window
+  let dayStart = now;
+  let dayEnd = now + 60 * 60000;
+  if (sorted.length > 0) {
+    const last = sorted[sorted.length - 1];
+    dayEnd = Math.max(dayEnd, last.start + Math.max(last.duration, 0) * 60000 + 30 * 60000);
+  }
+  const dayDuration = dayEnd - dayStart;
+
+  // Segments
+  let prev = now;
+  const segments = [];
+  sorted.forEach(b => {
+    const bStart = b.start;
+    const bEnd = b.start + b.duration * 60000;
+    if (bStart > prev) {
+      const bufMin = Math.round((bStart - prev) / 60000);
+      segments.push({ type: 'buffer', start: prev, end: bStart, mins: bufMin });
+      if (bStart > now) bufferMins += bufMin;
+    }
+    if (b.duration > 0) {
+      segments.push({ type: 'block', start: bStart, end: bEnd, name: b.name });
+      prev = bEnd;
+    } else {
+      segments.push({ type: 'block', start: bStart, end: bStart + 1000, name: b.name });
+      prev = bStart;
+    }
+  });
+
+  // Timeline
+  const tlBar = document.getElementById('timelineBar');
+  Array.from(tlBar.querySelectorAll('.tl-segment')).forEach(el => el.remove());
+
+  // In preset mode, no "past" shading — the preset IS the start
+  if (!isPreset) {
+    const pastPct = Math.min(100, ((realNow - dayStart) / dayDuration) * 100);
+    if (pastPct > 0) {
+      const past = document.createElement('div');
+      past.className = 'tl-segment past-seg';
+      past.style.left = '0%';
+      past.style.width = pastPct + '%';
+      tlBar.insertBefore(past, document.getElementById('nowLine'));
+    }
+  }
+
+  segments.forEach(seg => {
+    if (seg.end < now) return;
+    const segStart = Math.max(seg.start, dayStart);
+    const leftPct = ((segStart - dayStart) / dayDuration) * 100;
+    const widthPct = ((seg.end - segStart) / dayDuration) * 100;
+    if (widthPct < 0.5) return;
+    const el = document.createElement('div');
+    el.className = `tl-segment ${seg.type === 'buffer' ? 'buffer-seg' : 'block-seg'}`;
+    el.style.left = leftPct + '%';
+    el.style.width = widthPct + '%';
+    if (widthPct > 8) el.textContent = seg.type === 'buffer' ? `~${seg.mins}m` : seg.name;
+    tlBar.insertBefore(el, document.getElementById('nowLine'));
+  });
+
+  // Now line — in preset mode, show at left edge (start of plan)
+  const nowLinePct = isPreset ? 0 : Math.min(100, ((realNow - dayStart) / dayDuration) * 100);
+  document.getElementById('nowLine').style.left = nowLinePct + '%';
+
+  // Labels
+  document.getElementById('tlStart').textContent = isPreset ? formatTime(new Date(presetTime)) : 'Now';
+  const midDate = new Date(dayStart + dayDuration / 2);
+  document.getElementById('tlMid').textContent = formatTime(midDate);
+  document.getElementById('tlEnd').textContent = formatTime(new Date(dayEnd));
+
+  // Next event
+  const next = sorted.find(b => b.start > now);
+  const nextMsRaw = next ? next.start - now : null;
+  const nextMins = nextMsRaw ? Math.floor(nextMsRaw / 60000) : null;
+
+  // Stats
+  const statBlocked = document.getElementById('statBlocked');
+  const statBuffer = document.getElementById('statBuffer');
+  const statNext = document.getElementById('statNext');
+
+  statBlocked.textContent = blockedMins > 0 ? formatMins(blockedMins) : '—';
+  statBlocked.className = 'val good';
+
+  statBuffer.textContent = bufferMins > 0 ? formatMins(bufferMins) : upcoming.length > 0 ? '0m' : '—';
+  const bufClass = bufferMins < 15 && upcoming.length > 0 ? 'danger' : bufferMins < 30 && upcoming.length > 0 ? 'warn' : 'good';
+  statBuffer.className = `val ${bufClass}`;
+
+  statNext.textContent = nextMins !== null ? formatMins(nextMins) : '—';
+  const nextClass = nextMins !== null && nextMins < 10 ? 'danger' : nextMins !== null && nextMins < 20 ? 'warn' : 'good';
+  statNext.className = `val ${nextClass}`;
+
+  // Alert banner
+  const alertBanner = document.getElementById('alertBanner');
+  const alertText = document.getElementById('alertText');
+  let alerts = [];
+  if (nextMins !== null && nextMins < 10) alerts.push(`"${next.name}" starts in ${formatMins(nextMins)}!`);
+  if (bufferMins < 15 && upcoming.length > 1) alerts.push('Less than 15 min of buffer left today.');
+  if (alerts.length > 0) {
+    alertBanner.style.display = 'flex';
+    alertText.textContent = alerts[0];
+  } else {
+    alertBanner.style.display = 'none';
+  }
+
+  // Blocks list
+  const container = document.getElementById('blocksContainer');
+  if (blocks.length === 0) {
+    container.innerHTML = `<div class="empty"><div class="icon">📅</div>No events yet.<br>Add your first block above.</div>`;
+    return;
+  }
+
+  let html = '<div class="blocks-list">';
+  sorted.forEach((b, i) => {
+    const msToStart = b.start - now;
+    const bEnd = b.start + b.duration * 60000;
+    const isPast = b.duration > 0 ? bEnd < now : b.start < now;
+    const isUrgent = !isPast && msToStart < 10 * 60000;
+    const isWarning = !isPast && !isUrgent && msToStart < 20 * 60000;
+    const cardClass = isPast ? 'past' : isUrgent ? 'urgent' : isWarning ? 'warning' : '';
+    const countdown = formatCountdown(Math.max(0, msToStart));
+
+    const blockAddedAt = b.addedAt || (b.start - 3600000);
+    const totalWindow = b.start - blockAddedAt;
+    const elapsed = now - blockAddedAt;
+    const pct = isPast ? 100 : Math.min(99, Math.max(0, (elapsed / totalWindow) * 100));
+
+    html += `
+      <div class="block-card ${cardClass}">
+        <div class="block-inner">
+          <div class="block-top">
+            <div>
+              <div class="block-name">${b.name}</div>
+              <div class="block-meta">${formatTime(new Date(b.start))}${b.duration > 0 ? ` · ${formatMins(b.duration)}` : ' · deadline'}</div>
+            </div>
+            <div class="block-right">
+              ${isPast
+                ? `<div class="block-countdown">✓ done</div>`
+                : `<div class="block-countdown">${countdown}</div><div class="block-status">${isUrgent ? '⚡ soon' : 'to start'}</div>`
+              }
+            </div>
+            <button class="del-btn" onclick="removeBlock(${b.id})">✕</button>
+          </div>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" style="width:${pct}%"></div>
+        </div>
+      </div>`;
+
+    const nextBlock = sorted[i + 1];
+    if (nextBlock && !isPast) {
+      const currentEnd = b.duration > 0 ? bEnd : b.start;
+      const gapMs = nextBlock.start - currentEnd;
+      const gapMins = Math.round(gapMs / 60000);
+      if (gapMins > 0) {
+        const bufClass = gapMins < 10 ? 'danger-buf' : gapMins < 20 ? 'warn-buf' : '';
+        const alert = gapMins < 10 ? '🔴' : gapMins < 20 ? '🟡' : '🟢';
+        html += `
+          <div class="buffer-connector ${bufClass}">
+            <span class="buf-label">${alert} buffer</span>
+            <span class="buf-time">${formatMins(gapMins)} free</span>
+          </div>`;
+      }
+    }
+  });
+
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function setDefaultTime() {
+  const d = new Date();
+  d.setHours(d.getHours() + 1, 0, 0, 0);
+  document.getElementById('startTime').value = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+document.getElementById('eventName').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('startTime').focus();
+});
+document.getElementById('presetTimeInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') applyPreset();
+});
+
+setDefaultTime();
+render();
+setInterval(render, 1000);
+</script>
+</body>
+</html>
