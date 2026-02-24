@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Timeblind Aide</title>
+<meta name="description" content="Plan backwards. Live forwards. A time blindness tool for managing your day.">
+<meta name="theme-color" content="#0c0c0e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Timeblind Aide">
+<link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Fraunces:ital,wght@0,200;0,400;0,600;1,200;1,400&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -608,6 +615,65 @@ button.add-btn:active { transform: scale(0.98); }
 
 .empty .icon { font-size: 28px; margin-bottom: 12px; opacity: 0.4; }
 
+/* TIP JAR */
+.tip-footer {
+  margin: 32px 20px 0;
+  padding: 18px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tip-text {
+  flex: 1;
+}
+
+.tip-text .tip-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: 14px;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+
+.tip-text .tip-sub {
+  font-size: 10px;
+  color: var(--muted2);
+  line-height: 1.5;
+}
+
+.tip-btn {
+  background: #ff5e5b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 10px 16px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  white-space: nowrap;
+  transition: background 0.2s, transform 0.1s;
+  flex-shrink: 0;
+}
+
+.tip-btn:hover { background: #e04d4a; }
+.tip-btn:active { transform: scale(0.97); }
+
+.tip-made-by {
+  text-align: center;
+  margin: 14px 20px 0;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+}
+
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.45; }
@@ -1029,6 +1095,23 @@ document.getElementById('presetTimeInput').addEventListener('keydown', e => {
 setDefaultTime();
 render();
 setInterval(render, 1000);
+</script>
+<!-- TIP JAR -->
+<div class="tip-footer">
+  <div class="tip-text">
+    <div class="tip-title">☕ Find this helpful?</div>
+    <div class="tip-sub">Built for the time blind, by someone who gets it. Tips keep it going.</div>
+  </div>
+  <a class="tip-btn" href="https://ko-fi.com/shangoshango" target="_blank" rel="noopener">Buy me a coffee</a>
+</div>
+<div class="tip-made-by">Timeblind Aide · Plan backwards. Live forwards.</div>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
